@@ -138,6 +138,9 @@ export interface BootstrapPayload {
     mode: 'mysql' | 'demo'
     message: string
   }
+  setup: {
+    required: boolean
+  }
 }
 
 export interface PermissionSet {

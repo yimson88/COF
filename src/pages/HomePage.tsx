@@ -11,7 +11,7 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCof } from '../context/CofContext'
 import { contributionPolicy, formatDate, formatMoney } from '../data/config'
@@ -40,6 +40,8 @@ const branchVisuals: Record<string, string> = {
   kumbo: '/home/kumbo.jpg',
   yaounde: '/home/yaounde.jpg',
 }
+
+const associationFoundedYear = 2011
 
 const reveal = {
   hidden: { opacity: 0, y: 28 },
@@ -89,15 +91,7 @@ export function HomePage() {
   const latestNews = announcements.slice(0, 3)
   const featuredBranches = branches.slice(0, 4)
 
-  const earliestYear = useMemo(() => {
-    if (!members.length) {
-      return new Date().getFullYear()
-    }
-
-    return members.reduce((min, member) => Math.min(min, member.joinedYear), members[0].joinedYear)
-  }, [members])
-
-  const yearsActive = Math.max(1, new Date().getFullYear() - earliestYear + 1)
+  const yearsActive = Math.max(1, new Date().getFullYear() - associationFoundedYear)
 
   const homepageServices = [
     {
@@ -339,7 +333,7 @@ export function HomePage() {
           <div className="grid gap-10 lg:grid-cols-[1fr,0.95fr] lg:items-center">
             <motion.div variants={zoomReveal} className="overflow-hidden rounded-[34px]">
               <img
-                src="/home/FB_IMG_1749649752439.jpg"
+                src="/home/home2.jpg"
                 alt="Circle of Friends group gathering"
                 className="h-[26rem] w-full object-cover transition duration-700 hover:scale-[1.04] sm:h-[33rem]"
               />
@@ -410,7 +404,7 @@ export function HomePage() {
             </p>
             <div className="overflow-hidden rounded-[30px]">
               <img
-                src="/home/e74dc5c7-8405-4e42-9f20-80aa073608b5.jpg"
+                src="/home/home3.jpg"
                 alt="Members gathered during an association moment"
                 className="h-[24rem] w-full object-cover transition duration-700 hover:scale-[1.04]"
               />

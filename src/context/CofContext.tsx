@@ -17,6 +17,22 @@ interface CofContextValue extends BootstrapPayload {
   currentUser: MemberProfile | null
   loading: boolean
   login: (payload: { username: string; password: string }) => Promise<void>
+  initializeAssociation: (payload: {
+    branchName: string
+    branchLocation: string
+    branchDescription: string
+    branchMeetingDay: string
+    name: string
+    username: string
+    password: string
+    phone: string
+    email: string
+    dateOfBirth: string
+    placeOfBirth: string
+    maritalStatus: MemberProfile['maritalStatus']
+    homeAddress: string
+    profession: string
+  }) => Promise<void>
   registerMember: (payload: FormData) => Promise<string>
   logout: () => void
   refresh: () => Promise<void>
@@ -69,6 +85,9 @@ const defaultPayload: BootstrapPayload = {
   database: {
     mode: 'demo',
     message: 'Loading...',
+  },
+  setup: {
+    required: false,
   },
 }
 
@@ -145,6 +164,34 @@ export function CofProvider({ children }: PropsWithChildren) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(credentials),
+    })
+
+    setCurrentUserId(response.member.id)
+    await refresh()
+  }
+
+  const initializeAssociation = async (setupPayload: {
+    branchName: string
+    branchLocation: string
+    branchDescription: string
+    branchMeetingDay: string
+    name: string
+    username: string
+    password: string
+    phone: string
+    email: string
+    dateOfBirth: string
+    placeOfBirth: string
+    maritalStatus: MemberProfile['maritalStatus']
+    homeAddress: string
+    profession: string
+  }) => {
+    const response = await request<{ member: MemberProfile }>('/api/setup/initialize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(setupPayload),
     })
 
     setCurrentUserId(response.member.id)
@@ -314,6 +361,7 @@ export function CofProvider({ children }: PropsWithChildren) {
         currentUser,
         loading,
         login,
+        initializeAssociation,
         registerMember,
         logout,
         refresh,

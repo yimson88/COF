@@ -87,6 +87,23 @@ const registrationSchema = z.object({
   city: z.string().min(2).optional(),
 })
 
+const initialSetupSchema = z.object({
+  branchName: z.string().min(2),
+  branchLocation: z.string().min(2),
+  branchDescription: z.string().min(10),
+  branchMeetingDay: z.string().min(3),
+  name: z.string().min(2),
+  username: z.string().min(3),
+  password: z.string().min(6),
+  phone: z.string().min(6),
+  email: z.string().email(),
+  dateOfBirth: z.string().min(10),
+  placeOfBirth: z.string().min(2),
+  maritalStatus: z.enum(maritalStatusValues),
+  homeAddress: z.string().min(4),
+  profession: z.string().min(2),
+})
+
 const memberUpdateSchema = z.object({
   name: z.string().min(2),
   username: z.string().min(3),
@@ -407,25 +424,6 @@ async function ensureEventImagesMigration() {
   if (!isMysqlReady()) {
     return
   }
-
-  const [rows] = await getPool().query('SELECT COUNT(*) AS count FROM event_images')
-  if (rows[0].count > 0) {
-    return
-  }
-
-  const [existingEvents] = await getPool().query('SELECT id FROM events')
-  const existingEventIds = new Set(existingEvents.map((item) => item.id))
-
-  for (const image of demoState.eventImages) {
-    if (!existingEventIds.has(image.eventId)) {
-      continue
-    }
-
-    await getPool().execute(
-      'INSERT INTO event_images (id, eventId, imageUrl, sortOrder) VALUES (?, ?, ?, ?)',
-      [image.id, image.eventId, image.imageUrl, image.sortOrder],
-    )
-  }
 }
 
 async function ensureDatabaseSchema() {
@@ -443,145 +441,6 @@ async function ensureDatabaseSchema() {
 async function seedDatabaseIfEmpty() {
   if (!isMysqlReady()) {
     return
-  }
-
-  const [[branchCount]] = await getPool().query('SELECT COUNT(*) AS count FROM branches')
-  if (branchCount.count > 0) {
-    return
-  }
-
-  for (const branch of demoState.branches) {
-    await getPool().execute(
-      'INSERT INTO branches (id, name, location, description, meetingDay, photo, color, highlights, coordinatorName, treasurerName) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        branch.id,
-        branch.name,
-        branch.location,
-        branch.description,
-        branch.meetingDay,
-        branch.photo,
-        branch.color,
-        JSON.stringify(branch.highlights),
-        branch.coordinatorName,
-        branch.treasurerName,
-      ],
-    )
-  }
-
-  for (const executive of demoState.executives) {
-    await getPool().execute(
-      'INSERT INTO executives (id, name, portfolio, bio, avatar, phone) VALUES (?, ?, ?, ?, ?, ?)',
-      [executive.id, executive.name, executive.portfolio, executive.bio, executive.avatar, executive.phone],
-    )
-  }
-
-  for (const member of demoState.members) {
-    await getPool().execute(
-      `INSERT INTO members
-       (id, membershipCode, name, username, role, title, branchId, phone, email, dateOfBirth, placeOfBirth, maritalStatus, homeAddress, profession, joinedYear, avatar, coverPhoto, passwordHash, status, approvalStatus, approvedBy, approvedAt, city)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        member.id,
-        member.membershipCode,
-        member.name,
-        member.username,
-        member.role,
-        member.title,
-        member.branchId,
-        member.phone,
-        member.email,
-        member.dateOfBirth,
-        member.placeOfBirth,
-        member.maritalStatus,
-        member.homeAddress,
-        member.profession,
-        member.joinedYear,
-        member.avatar,
-        member.coverPhoto,
-        hashPassword(defaultSeedPassword),
-        member.status,
-        member.approvalStatus,
-        member.approvedBy,
-        member.approvedAt ? mysqlDateTime(new Date(member.approvedAt)) : null,
-        member.city,
-      ],
-    )
-  }
-
-  for (const event of demoState.events) {
-    await getPool().execute(
-      'INSERT INTO events (id, title, type, status, `date`, venue, summary, minContribution, targetAmount, raisedAmount, expenditure, hero, branchScope) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        event.id,
-        event.title,
-        event.type,
-        event.status,
-        event.date,
-        event.venue,
-        event.summary,
-        event.minContribution,
-        event.targetAmount,
-        event.raisedAmount,
-        event.expenditure,
-        event.hero,
-        event.branchScope,
-      ],
-    )
-  }
-
-  for (const image of demoState.eventImages) {
-    await getPool().execute(
-      'INSERT INTO event_images (id, eventId, imageUrl, sortOrder) VALUES (?, ?, ?, ?)',
-      [image.id, image.eventId, image.imageUrl, image.sortOrder],
-    )
-  }
-
-  for (const contribution of demoState.contributions) {
-    await getPool().execute(
-      'INSERT INTO contributions (id, eventId, memberId, branchId, amount, `date`, kind) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [
-        contribution.id,
-        contribution.eventId,
-        contribution.memberId,
-        contribution.branchId,
-        contribution.amount,
-        contribution.date,
-        contribution.kind,
-      ],
-    )
-  }
-
-  for (const post of demoState.posts) {
-    await getPool().execute(
-      'INSERT INTO posts (id, authorId, branchId, type, content, createdAt, media, attachments, reactions, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        post.id,
-        post.authorId,
-        post.branchId,
-        post.type,
-        post.content,
-        post.createdAt,
-        post.media,
-        JSON.stringify(post.attachments),
-        post.reactions,
-        post.comments,
-      ],
-    )
-  }
-
-  for (const announcement of demoState.announcements) {
-    await getPool().execute(
-      'INSERT INTO announcements (id, title, message, audience, createdAt, authorId, channel) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [
-        announcement.id,
-        announcement.title,
-        announcement.message,
-        announcement.audience,
-        announcement.createdAt,
-        announcement.authorId,
-        announcement.channel,
-      ],
-    )
   }
 }
 
@@ -616,10 +475,6 @@ async function loadMysqlState() {
     'SELECT id, title, message, audience, createdAt, authorId, channel FROM announcements ORDER BY createdAt DESC',
   )
 
-  if (!branches.length) {
-    return cloneDemoState()
-  }
-
   return {
     branches: branches.map((item) => ({ ...item, highlights: safeJson(item.highlights) })),
     executives,
@@ -639,6 +494,15 @@ async function getCurrentState() {
 
   state = await loadMysqlState()
   return state
+}
+
+async function isInitialSetupRequired() {
+  if (!isMysqlReady()) {
+    return false
+  }
+
+  const [[memberCount]] = await getPool().query('SELECT COUNT(*) AS count FROM members')
+  return memberCount.count === 0
 }
 
 function nextMembershipCode(members, branchId) {
@@ -687,10 +551,14 @@ app.use('/uploads', express.static(uploadsDir))
 
 app.get('/api/health', async (_req, res) => {
   const current = await getCurrentState()
+  const setupRequired = await isInitialSetupRequired()
 
   res.json({
     ok: true,
     database: getDatabaseStatus(),
+    setup: {
+      required: setupRequired,
+    },
     counts: {
       branches: current.branches.length,
       members: current.members.length,
@@ -701,13 +569,152 @@ app.get('/api/health', async (_req, res) => {
 
 app.get('/api/bootstrap', async (_req, res) => {
   const current = await getCurrentState()
+  const setupRequired = await isInitialSetupRequired()
   res.json({
     ...current,
     database: getDatabaseStatus(),
+    setup: {
+      required: setupRequired,
+    },
   })
 })
 
+app.post('/api/setup/initialize', async (req, res) => {
+  if (!isMysqlReady()) {
+    res.status(503).json({ message: 'Initial setup requires an active MySQL connection.' })
+    return
+  }
+
+  if (!(await isInitialSetupRequired())) {
+    res.status(409).json({ message: 'Initial setup has already been completed.' })
+    return
+  }
+
+  const parsed = initialSetupSchema.safeParse({
+    ...req.body,
+    username: normalizeUsername(req.body?.username ?? ''),
+  })
+
+  if (!parsed.success) {
+    res.status(400).json({ message: 'Invalid initial setup data.' })
+    return
+  }
+
+  const payload = parsed.data
+  const branchId = payload.branchName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  const branch = {
+    id: branchId || `branch-${Date.now()}`,
+    name: payload.branchName,
+    location: payload.branchLocation,
+    description: payload.branchDescription,
+    meetingDay: payload.branchMeetingDay,
+    photo: '/home/unity-in-support.jpg',
+    color: branchColor(0),
+    highlights: ['Association launch', 'First leadership setup', 'Foundational branch administration'],
+    coordinatorName: payload.name,
+    treasurerName: 'To be assigned',
+  }
+
+  const member = {
+    id: `m-${Date.now()}`,
+    membershipCode: generateMembershipCode(branch.id, 1),
+    name: payload.name,
+    username: payload.username,
+    role: 'super_admin',
+    title: 'Super Admin',
+    branchId: branch.id,
+    phone: payload.phone,
+    email: payload.email,
+    dateOfBirth: normalizeDateOnly(payload.dateOfBirth),
+    placeOfBirth: payload.placeOfBirth,
+    maritalStatus: payload.maritalStatus,
+    homeAddress: payload.homeAddress,
+    profession: payload.profession,
+    joinedYear: new Date().getFullYear(),
+    avatar: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(payload.name)}&backgroundColor=165fa6`,
+    coverPhoto: defaultMemberCover(branch.id),
+    status: 'active',
+    approvalStatus: 'approved',
+    approvedBy: 'Initial setup',
+    approvedAt: new Date().toISOString(),
+    city: payload.branchLocation,
+  }
+
+  const connection = await getPool().getConnection()
+
+  try {
+    await connection.beginTransaction()
+
+    await connection.execute(
+      'INSERT INTO branches (id, name, location, description, meetingDay, photo, color, highlights, coordinatorName, treasurerName) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        branch.id,
+        branch.name,
+        branch.location,
+        branch.description,
+        branch.meetingDay,
+        branch.photo,
+        branch.color,
+        JSON.stringify(branch.highlights),
+        branch.coordinatorName,
+        branch.treasurerName,
+      ],
+    )
+
+    await connection.execute(
+      `INSERT INTO members
+       (id, membershipCode, name, username, role, title, branchId, phone, email, dateOfBirth, placeOfBirth, maritalStatus, homeAddress, profession, joinedYear, avatar, coverPhoto, passwordHash, status, approvalStatus, approvedBy, approvedAt, city)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        member.id,
+        member.membershipCode,
+        member.name,
+        member.username,
+        member.role,
+        member.title,
+        member.branchId,
+        member.phone,
+        member.email,
+        member.dateOfBirth,
+        member.placeOfBirth,
+        member.maritalStatus,
+        member.homeAddress,
+        member.profession,
+        member.joinedYear,
+        member.avatar,
+        member.coverPhoto,
+        hashPassword(payload.password),
+        member.status,
+        member.approvalStatus,
+        member.approvedBy,
+        mysqlDateTime(new Date(member.approvedAt)),
+        member.city,
+      ],
+    )
+
+    await connection.commit()
+    state = await loadMysqlState()
+    res.status(201).json({ member })
+  } catch (error) {
+    await connection.rollback()
+
+    if (isDuplicateKeyError(error)) {
+      res.status(409).json({ message: 'Initial setup could not be completed because that username or branch already exists.' })
+      return
+    }
+
+    throw error
+  } finally {
+    connection.release()
+  }
+})
+
 app.post('/api/auth/login', async (req, res) => {
+  if (await isInitialSetupRequired()) {
+    res.status(403).json({ message: 'Complete the initial super admin setup before logging in.' })
+    return
+  }
+
   const parsed = loginSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ message: 'Enter a valid username and password.' })
@@ -754,6 +761,11 @@ app.post('/api/auth/login', async (req, res) => {
 })
 
 app.post('/api/auth/register', upload.single('photo'), async (req, res) => {
+  if (await isInitialSetupRequired()) {
+    res.status(403).json({ message: 'Complete the initial super admin setup before opening member registration.' })
+    return
+  }
+
   const parsed = registrationSchema.safeParse({
     ...req.body,
     username: normalizeUsername(req.body?.username ?? ''),

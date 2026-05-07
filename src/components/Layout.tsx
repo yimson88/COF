@@ -1,15 +1,15 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowRight,
-  Database,
+  CircleAlert,
   LayoutDashboard,
   LogOut,
   Menu,
   ShieldCheck,
   X,
 } from 'lucide-react'
-import { useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useCof } from '../context/CofContext'
 import { roleLabels } from '../data/config'
 
@@ -24,13 +24,44 @@ const navItems = [
 
 export function Layout() {
   const [open, setOpen] = useState(false)
-  const { currentUser, branches, database, logout } = useCof()
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { currentUser, branches, logout } = useCof()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!toastMessage) {
+      return undefined
+    }
+
+    const timeout = window.setTimeout(() => setToastMessage(null), 3200)
+
+    return () => window.clearTimeout(timeout)
+  }, [toastMessage])
 
   function handleLogout() {
     logout()
     setOpen(false)
     navigate('/')
+  }
+
+  function handleDashboardAccess(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (!currentUser) {
+      event.preventDefault()
+      setOpen(false)
+      setToastMessage('Dashboard access is restricted to members only. Please log in first.')
+      return
+    }
+
+    if (currentUser.role === 'member') {
+      event.preventDefault()
+      setOpen(false)
+      setToastMessage('Executive dashboard access is restricted to authorized offices.')
+    }
   }
 
   return (
@@ -55,6 +86,7 @@ export function Layout() {
               <NavLink
                 key={item.to}
                 to={item.to}
+                onClick={item.to === '/dashboard' ? handleDashboardAccess : undefined}
                 className={({ isActive }) =>
                   `rounded-full px-4 py-2 text-sm font-semibold transition ${
                     isActive
@@ -69,12 +101,6 @@ export function Layout() {
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <div className="rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-semibold text-white/78">
-              <span className="inline-flex items-center gap-2">
-                <Database size={14} />
-                {database.mode === 'mysql' ? 'MySQL Live' : 'Demo Mode'}
-              </span>
-            </div>
             {currentUser ? (
               <>
                 <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-3 py-2">
@@ -124,7 +150,7 @@ export function Layout() {
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    onClick={() => setOpen(false)}
+                    onClick={item.to === '/dashboard' ? handleDashboardAccess : () => setOpen(false)}
                     className={({ isActive }) =>
                       `block rounded-2xl px-4 py-3 text-sm font-semibold ${
                         isActive ? 'bg-white text-cof-deep' : 'bg-white/10 text-white'
@@ -152,7 +178,36 @@ export function Layout() {
       </header>
 
       <main className="pb-20">
-        <Outlet />
+        <AnimatePresence>
+          {toastMessage ? (
+            <motion.div
+              initial={{ opacity: 0, y: -14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="pointer-events-none fixed right-4 top-24 z-[80] max-w-sm"
+            >
+              <div className="flex items-start gap-3 rounded-2xl border border-cof-blue/18 bg-cof-deep px-4 py-3 text-white shadow-[0_16px_45px_rgba(9,23,39,0.28)]">
+                <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-cof-pale">
+                  <CircleAlert size={16} />
+                </span>
+                <p className="text-sm leading-6 text-white/88">{toastMessage}</p>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -12, filter: 'blur(6px)' }}
+            transition={{ duration: 0.38, ease: 'easeOut' }}
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <footer className="border-t border-cof-deep/10 bg-cof-deep text-white">
@@ -189,7 +244,11 @@ export function Layout() {
               <NavLink to="/portal" className="block transition hover:text-white">
                 Member portal
               </NavLink>
-              <NavLink to="/dashboard" className="block transition hover:text-white">
+              <NavLink
+                to="/dashboard"
+                onClick={handleDashboardAccess}
+                className="block transition hover:text-white"
+              >
                 Executive dashboard
               </NavLink>
             </div>
@@ -208,6 +267,9 @@ export function Layout() {
               ))}
             </div>
           </div>
+        </div>
+        <div className="section-shell flex items-center justify-start pb-5">
+          <p className="text-xs text-white/58">Yimson Dev 2026 - All Rights Reserved</p>
         </div>
       </footer>
     </div>

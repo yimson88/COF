@@ -14,7 +14,7 @@ const routeMeta: Record<string, { title: string; description: string }> = {
   '/': {
     title: 'Circle of Friends | Friends for Life',
     description:
-      'Responsive association management platform for branches, welfare contributions, executives, community outreach, and member engagement.',
+      'A professional welfare association supporting members through weddings, funerals, outreach, and community life.',
   },
   '/about': {
     title: 'About Circle of Friends',

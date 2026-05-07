@@ -91,7 +91,7 @@ export function AboutPage() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="/home/FB_IMG_1749649752439.jpg"
+            src="/about/abus1.jpg"
             alt="Circle of Friends members"
             className="h-[28rem] w-full object-cover md:h-[32rem]"
           />
@@ -181,7 +181,7 @@ export function AboutPage() {
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <motion.div variants={zoomReveal} className="overflow-hidden rounded-[30px] shadow-[0_26px_90px_rgba(15,65,114,0.14)]">
               <img
-                src="/about/who-we-are-2.jpg"
+                src="/about/abus2.jpg"
                 alt="Association purpose"
                 className="h-[24rem] w-full object-cover transition duration-700 hover:scale-[1.04] lg:h-[26rem]"
               />
@@ -256,7 +256,7 @@ export function AboutPage() {
             </motion.div>
             <motion.div variants={zoomReveal} className="grid grid-cols-2 gap-4">
               <img
-                src="/about/who-we-are-3a.jpg"
+                src="/about/abus3.jpg"
                 alt="Celebration"
                 className="h-56 w-full rounded-[24px] object-cover shadow-lg transition duration-700 hover:-translate-y-1 hover:scale-[1.03] lg:h-64"
               />
@@ -340,11 +340,21 @@ export function AboutPage() {
               </div>
             </motion.div>
 
-            <motion.div variants={zoomReveal} className="overflow-hidden rounded-[28px] bg-cof-deep">
-              <video controls poster="/home/celebrating-together.jpg" className="w-full">
-                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+            <motion.div
+              variants={zoomReveal}
+              className="overflow-hidden rounded-[28px] bg-cof-deep"
+            >
+              <div className="relative w-full aspect-[267/476]">
+                <iframe
+                  src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Fngalim.kenneth.3%2Fvideos%2F1616984076290532%2F&show_text=false&width=267&t=0"
+                  className="absolute inset-0 h-full w-full"
+                  style={{ border: "none", overflow: "hidden" }}
+                  scrolling="no"
+                  frameBorder="0"
+                  allowFullScreen
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                />
+              </div>
             </motion.div>
           </div>
         </motion.div>

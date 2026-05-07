@@ -143,7 +143,6 @@ export function DashboardPage() {
     branches,
     contributions,
     currentUser,
-    database,
     deleteEventImage,
     deleteMember,
     editMember,
@@ -1548,7 +1547,7 @@ export function DashboardPage() {
           </div>
           <div className="rounded-3xl border border-cof-blue/12 bg-cof-pale px-5 py-4 text-sm text-cof-slate">
             <p className="font-semibold text-cof-deep">{permissions.label}</p>
-            <p className="mt-1">Database mode: {database.mode === 'mysql' ? 'MySQL Live' : 'Demo fallback'}</p>
+            <p className="mt-1">Role-specific access and reporting workspace.</p>
           </div>
         </div>
       </section>

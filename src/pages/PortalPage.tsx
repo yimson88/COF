@@ -37,9 +37,11 @@ export function PortalPage() {
     contributions,
     currentUser,
     events,
+    initializeAssociation,
     loading,
     login,
     registerMember,
+    setup,
     updateOwnProfile,
   } = useCof()
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
@@ -60,6 +62,22 @@ export function PortalPage() {
     homeAddress: '',
     profession: '',
     photo: null as File | null,
+  })
+  const [setupForm, setSetupForm] = useState({
+    branchName: '',
+    branchLocation: '',
+    branchDescription: '',
+    branchMeetingDay: '',
+    name: '',
+    username: '',
+    password: '',
+    phone: '',
+    email: '',
+    dateOfBirth: '',
+    placeOfBirth: '',
+    maritalStatus: 'single',
+    homeAddress: '',
+    profession: '',
   })
   const [profileForm, setProfileForm] = useState({
     phone: '',
@@ -104,6 +122,92 @@ export function PortalPage() {
   }
 
   if (!currentUser) {
+    if (setup.required) {
+      return (
+        <div className="min-h-[78vh] bg-[#f0f2f5] pb-10 pt-10 sm:pt-14">
+          <section className="section-shell grid min-h-[70vh] gap-10 lg:grid-cols-[1fr,460px] lg:items-center">
+            <div className="max-w-2xl px-2">
+              <img src="/reference-logo.png" alt="Circle of Friends" className="h-20 w-20 rounded-full bg-white object-cover shadow-lg" />
+              <h1 className="mt-5 font-display text-4xl font-semibold tracking-tight text-cof-deep sm:text-6xl">
+                Initialize Circle of Friends
+              </h1>
+              <p className="mt-4 text-xl leading-9 text-cof-slate sm:text-3xl sm:leading-[1.35]">
+                Create the first branch and the first super admin before member registration and executive access begin.
+              </p>
+            </div>
+
+            <div className="mx-auto w-full max-w-[460px]">
+              <div className="rounded-2xl bg-white p-4 shadow-[0_8px_30px_rgba(15,65,114,0.12)] sm:p-5">
+                <form
+                  className="grid gap-3"
+                  onSubmit={async (event) => {
+                    event.preventDefault()
+                    setAuthLoading(true)
+                    setAuthError('')
+                    setAuthMessage('')
+                    try {
+                      await initializeAssociation({
+                        branchName: setupForm.branchName,
+                        branchLocation: setupForm.branchLocation,
+                        branchDescription: setupForm.branchDescription,
+                        branchMeetingDay: setupForm.branchMeetingDay,
+                        name: setupForm.name,
+                        username: setupForm.username,
+                        password: setupForm.password,
+                        phone: setupForm.phone,
+                        email: setupForm.email,
+                        dateOfBirth: setupForm.dateOfBirth,
+                        placeOfBirth: setupForm.placeOfBirth,
+                        maritalStatus: setupForm.maritalStatus as 'single' | 'married' | 'divorced' | 'widowed',
+                        homeAddress: setupForm.homeAddress,
+                        profession: setupForm.profession,
+                      })
+                    } catch (error) {
+                      setAuthError(error instanceof Error ? error.message : 'Initial setup failed.')
+                    } finally {
+                      setAuthLoading(false)
+                    }
+                  }}
+                >
+                  <p className="pb-1 text-center font-display text-2xl font-semibold text-cof-deep">
+                    First Super Admin
+                  </p>
+                  <input className="field rounded-xl border-gray-300" placeholder="Branch name" value={setupForm.branchName} onChange={(event) => setSetupForm((current) => ({ ...current, branchName: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" placeholder="Branch location" value={setupForm.branchLocation} onChange={(event) => setSetupForm((current) => ({ ...current, branchLocation: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" placeholder="Branch meeting day" value={setupForm.branchMeetingDay} onChange={(event) => setSetupForm((current) => ({ ...current, branchMeetingDay: event.target.value }))} />
+                  <textarea className="field min-h-24 resize-none rounded-xl border-gray-300" placeholder="Branch description" value={setupForm.branchDescription} onChange={(event) => setSetupForm((current) => ({ ...current, branchDescription: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" placeholder="Full names" value={setupForm.name} onChange={(event) => setSetupForm((current) => ({ ...current, name: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" placeholder="Username" value={setupForm.username} onChange={(event) => setSetupForm((current) => ({ ...current, username: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" type="password" placeholder="Password" value={setupForm.password} onChange={(event) => setSetupForm((current) => ({ ...current, password: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" placeholder="Phone number" value={setupForm.phone} onChange={(event) => setSetupForm((current) => ({ ...current, phone: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" type="email" placeholder="Email address" value={setupForm.email} onChange={(event) => setSetupForm((current) => ({ ...current, email: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" type="date" value={setupForm.dateOfBirth} onChange={(event) => setSetupForm((current) => ({ ...current, dateOfBirth: event.target.value }))} />
+                  <input className="field rounded-xl border-gray-300" placeholder="Place of birth" value={setupForm.placeOfBirth} onChange={(event) => setSetupForm((current) => ({ ...current, placeOfBirth: event.target.value }))} />
+                  <select className="field rounded-xl border-gray-300" value={setupForm.maritalStatus} onChange={(event) => setSetupForm((current) => ({ ...current, maritalStatus: event.target.value }))}>
+                    <option value="single">Single</option>
+                    <option value="married">Married</option>
+                    <option value="divorced">Divorced</option>
+                    <option value="widowed">Widowed</option>
+                  </select>
+                  <input className="field rounded-xl border-gray-300" placeholder="Profession" value={setupForm.profession} onChange={(event) => setSetupForm((current) => ({ ...current, profession: event.target.value }))} />
+                  <textarea className="field min-h-24 resize-none rounded-xl border-gray-300" placeholder="Home address" value={setupForm.homeAddress} onChange={(event) => setSetupForm((current) => ({ ...current, homeAddress: event.target.value }))} />
+                  <button type="submit" className="rounded-xl bg-[#1877f2] px-5 py-3 text-base font-semibold text-white transition hover:bg-[#166fe5]" disabled={authLoading}>
+                    {authLoading ? 'Creating super admin...' : 'Complete initial setup'}
+                  </button>
+                </form>
+
+                {authError ? (
+                  <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {authError}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        </div>
+      )
+    }
+
     return (
       <div className="min-h-[78vh] bg-[#f0f2f5] pb-10 pt-10 sm:pt-14">
         <section className="section-shell grid min-h-[70vh] gap-10 lg:grid-cols-[1fr,420px] lg:items-center">
