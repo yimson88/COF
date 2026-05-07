@@ -13,6 +13,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const uploadsDir = path.join(__dirname, 'uploads')
 const schemaPath = path.join(__dirname, 'schema.sql')
+const distDir = path.resolve(__dirname, '../dist')
+const distIndexPath = path.join(distDir, 'index.html')
 const app = express()
 const port = Number(process.env.PORT || 4000)
 const defaultSeedPassword = 'friend123'
@@ -1556,12 +1558,26 @@ app.post('/api/announcements', async (req, res) => {
   res.status(201).json(announcement)
 })
 
+async function registerFrontendRoutes() {
+  try {
+    await fs.access(distIndexPath)
+  } catch {
+    return
+  }
+
+  app.use(express.static(distDir))
+  app.get(/^(?!\/api|\/uploads).*/, (_req, res) => {
+    res.sendFile(distIndexPath)
+  })
+}
+
 async function start() {
   await fs.mkdir(uploadsDir, { recursive: true })
   await initDatabase()
   await ensureDatabaseSchema()
   await seedDatabaseIfEmpty()
   state = await getCurrentState()
+  await registerFrontendRoutes()
 
   app.listen(port, () => {
     console.log(`Circle of Friends server running on http://localhost:${port}`)
