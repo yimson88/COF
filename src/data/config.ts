@@ -1,0 +1,191 @@
+import type { MaritalStatus, PermissionSet, Role } from '../types/cof'
+
+export const roleLabels: Record<Role, string> = {
+  member: 'Member',
+  super_admin: 'Super Admin',
+  admin: 'Admin',
+  general_coordinator: 'General Coordinator',
+  secretary_general: 'Secretary General',
+  general_treasurer: 'General Treasurer',
+  branch_coordinator: 'Branch Coordinator',
+  branch_treasurer: 'Branch Treasurer',
+}
+
+export const rolePermissions: Record<Role, PermissionSet> = {
+  member: {
+    label: 'Member Access',
+    viewReports: false,
+    manageEventFinance: false,
+    manageEventMedia: false,
+    manageBranches: false,
+    manageMembers: false,
+    suspendMembers: false,
+    dismissMembers: false,
+    announce: false,
+    printLists: false,
+    printCards: false,
+    enterContributions: false,
+    enterLateContributions: false,
+    approveRegistrations: false,
+  },
+  super_admin: {
+    label: 'Full Control',
+    viewReports: true,
+    manageEventFinance: true,
+    manageEventMedia: true,
+    manageBranches: true,
+    manageMembers: true,
+    suspendMembers: true,
+    dismissMembers: true,
+    announce: true,
+    printLists: true,
+    printCards: true,
+    enterContributions: true,
+    enterLateContributions: true,
+    approveRegistrations: true,
+  },
+  admin: {
+    label: 'Operational Admin',
+    viewReports: true,
+    manageEventFinance: true,
+    manageEventMedia: true,
+    manageBranches: true,
+    manageMembers: true,
+    suspendMembers: true,
+    dismissMembers: false,
+    announce: true,
+    printLists: true,
+    printCards: true,
+    enterContributions: true,
+    enterLateContributions: true,
+    approveRegistrations: true,
+  },
+  general_coordinator: {
+    label: 'National Oversight',
+    viewReports: true,
+    manageEventFinance: true,
+    manageEventMedia: true,
+    manageBranches: true,
+    manageMembers: true,
+    suspendMembers: true,
+    dismissMembers: true,
+    announce: true,
+    printLists: false,
+    printCards: false,
+    enterContributions: false,
+    enterLateContributions: false,
+    approveRegistrations: true,
+  },
+  secretary_general: {
+    label: 'Reporting and Records',
+    viewReports: true,
+    manageEventFinance: true,
+    manageEventMedia: true,
+    manageBranches: false,
+    manageMembers: false,
+    suspendMembers: false,
+    dismissMembers: false,
+    announce: false,
+    printLists: true,
+    printCards: false,
+    enterContributions: false,
+    enterLateContributions: true,
+    approveRegistrations: true,
+  },
+  general_treasurer: {
+    label: 'National Finance',
+    viewReports: true,
+    manageEventFinance: true,
+    manageEventMedia: true,
+    manageBranches: false,
+    manageMembers: false,
+    suspendMembers: false,
+    dismissMembers: false,
+    announce: false,
+    printLists: true,
+    printCards: false,
+    enterContributions: true,
+    enterLateContributions: true,
+    approveRegistrations: false,
+  },
+  branch_coordinator: {
+    label: 'Branch Leadership',
+    viewReports: true,
+    manageEventFinance: false,
+    manageEventMedia: false,
+    manageBranches: false,
+    manageMembers: true,
+    suspendMembers: false,
+    dismissMembers: false,
+    announce: false,
+    printLists: false,
+    printCards: true,
+    enterContributions: false,
+    enterLateContributions: false,
+    approveRegistrations: false,
+  },
+  branch_treasurer: {
+    label: 'Branch Collections',
+    viewReports: true,
+    manageEventFinance: false,
+    manageEventMedia: false,
+    manageBranches: false,
+    manageMembers: false,
+    suspendMembers: false,
+    dismissMembers: false,
+    announce: false,
+    printLists: false,
+    printCards: false,
+    enterContributions: true,
+    enterLateContributions: true,
+    approveRegistrations: false,
+  },
+}
+
+export const contributionPolicy = [
+  {
+    title: 'Wedding of a Member',
+    amount: 10000,
+    note: 'Obligatory minimum support contribution expected from every eligible member.',
+  },
+  {
+    title: 'Funeral of a Member',
+    amount: 10000,
+    note: 'Obligatory welfare solidarity contribution with branch mobilization.',
+  },
+  {
+    title: 'Funeral of Immediate Family Member',
+    amount: 5000,
+    note: 'Obligatory emergency support contribution for immediate relatives.',
+  },
+  {
+    title: 'Charity and Community Outreach',
+    amount: 5000,
+    note: 'Flexible support level depending on project scope and branch plan.',
+  },
+]
+
+export const maritalStatusLabels: Record<MaritalStatus, string> = {
+  single: 'Single',
+  married: 'Married',
+  divorced: 'Divorced',
+  widowed: 'Widowed',
+}
+
+const moneyFormatter = new Intl.NumberFormat('fr-CM', {
+  style: 'currency',
+  currency: 'XAF',
+  maximumFractionDigits: 0,
+})
+
+export function formatMoney(value: number) {
+  return moneyFormatter.format(value)
+}
+
+export function formatDate(value: string) {
+  return new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(value))
+}
