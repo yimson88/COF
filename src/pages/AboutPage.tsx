@@ -109,7 +109,7 @@ export function AboutPage() {
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-white/80 sm:text-lg">
               Circle of Friends exists to make member welfare dependable. We stand together through
-              weddings, funerals, outreach, and community service with structure and compassion.
+              weddings, funerals, outreach and community service with structure and compassion.
             </p>
           </div>
         </div>
